@@ -21,22 +21,31 @@ CONFIGS = [dict(mode="pairs", use_scale=True), dict(mode="pairs", use_scale=Fals
            dict(mode="variance", loss="qlike", use_scale=False, nu=6.0)]
 
 
+@pytest.mark.parametrize("dropout", [0.0, 0.3])
 @pytest.mark.parametrize("cfg", CONFIGS)
-def test_gradients_match_finite_differences(cfg):
+def test_gradients_match_finite_differences(cfg, dropout):
     b = _batch()
-    net = GateNet(5, 2, 3, hidden=4, emb=2, dropout=0.0, lam_eq=0.5, wd=1e-3, seed=1, **cfg)
+    b["y"] = b["y"] * 3  # enough VaR hits to exercise the hit branch
+    net = GateNet(5, 2, 3, hidden=4, emb=2, dropout=dropout, lam_eq=0.5, wd=1e-3, seed=1, **cfg)
     rng = np.random.default_rng(2)
     for k in net.p:  # move heads off zero so every path is exercised
         net.p[k] = net.p[k] + rng.normal(0, 0.3, net.p[k].shape)
-    _, g = net.loss_and_grad(b)
+    hits = (b["y"] <= net.forward(b)["var"]).sum()
+    assert 0 < hits < len(b["y"])
+
+    def loss(grad=False):  # same dropout mask on every call
+        out = net.loss_and_grad(b, train=dropout > 0, rng=np.random.default_rng(7))
+        return out if grad else out[0]
+
+    _, g = loss(grad=True)
     h = 1e-6
     for k, v in net.p.items():
-        for idx in list(np.ndindex(v.shape))[:6]:
+        for idx in np.ndindex(v.shape):
             old = v[idx]
             v[idx] = old + h
-            lp, _ = net.loss_and_grad(b)
+            lp = loss()
             v[idx] = old - h
-            lm, _ = net.loss_and_grad(b)
+            lm = loss()
             v[idx] = old
             assert g[k][idx] == pytest.approx((lp - lm) / (2 * h), rel=1e-4, abs=1e-6), (k, idx)
 

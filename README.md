@@ -83,14 +83,15 @@ Pooled mean FZ0 loss over 2023-01 to 2026-09, all 8 assets, from `results/tables
 | Previous best | -2.959 | -3.256 | -3.472 |
 | Equal-weight mean | -2.955 | -3.249 | -3.476 |
 | Gate (main) | -2.919 | -3.219 | -3.466 |
-| Best single model (HAR) | -2.957 | -3.250 | -3.476 |
+| Best single model | -2.961 (GARCH-t) | -3.250 (HAR) | -3.476 (HAR) |
 
 At α = 2.5% the gate ablations score: QLIKE-trained variance gate -3.262 (lowest of all methods), no scale head -3.252, variance combination -3.244, no expiry features -3.240, no VIX features -3.224.
 
 What this shows so far:
 
 - The main gate does worse than equal weights and than Taylor's (2020) combinations at all three tail levels.
-- Most of the loss comes from one fold. The gate validated on 2023, a calm year, learned a scale factor of about 0.82 (VaR about 18% too small) and then under-predicted risk in 2024: VaR hit rate 3.8% against 2.4% for equal weights. Without the scale head the gate stays close to equal weights in every fold.
+- Most of the loss comes from one fold (test year 2024). That fold's gate learned a scale factor of about 0.82 on its 2020–22 training data, which the calm 2023 validation year confirmed. VaR was therefore about 18% too small in 2024: hit rate 3.8% against 2.4% for equal weights. Without the scale head the gate stays close to equal weights in every fold.
+- The gate's training data starts 2020-04-08, after the COVID crash, because its 60-day loss features need a warm-up after base forecasts begin on 2020-01-01. Baseline weights use expanding windows that start 2020-01-01.
 - Taylor's minimum and relative score combinations are the strongest baselines.
 - These are point estimates. Plan 3 adds Diebold–Mariano tests, the Model Confidence Set and backtests; differences of this size may not be significant.
 

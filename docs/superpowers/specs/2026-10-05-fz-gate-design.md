@@ -84,7 +84,7 @@ Training: one pooled gate across all 8 assets. Adam, early stopping on validatio
 
 - Each of the 6 base models alone.
 - Equal-weight mean and median of the 6 pairs.
-- Taylor (2020) combinations, re-implemented from the paper with definitions checked against the original text before implementation: previous-best model selection, relative-score (performance-based) weights, and FZ-optimal static weights estimated on a rolling 250-day window.
+- Taylor (2020) combinations, re-implemented from the paper text: minimum score combining (separate convex weights for VaR and for the ES−VaR spacing, fitted by minimising mean FZ0) and relative score combining (w_i ∝ exp(−λ·S_i), λ fitted). Plus previous-best model selection. Weights are re-estimated every 21 trading days on an expanding window of all earlier out-of-sample forecasts, starting once 250 rows exist. (Revised 2026-10-06 during Plan 2; the draft said a rolling 250-day window.)
 
 ### 4.3 Ablations
 
@@ -109,7 +109,7 @@ The gate is retrained once per test year on an expanding window:
 | 3 | 2020–2023 | 2024 | 2025 |
 | 4 | 2020–2024 | 2025 | 2026-01-01 to 2026-09-30 |
 
-The combined test period is 2023-01-01 to 2026-09-30. All rolling baselines use only data before each forecast date. Hyperparameters (hidden size, dropout, λ_eq grid) are fixed before fold 1 is tested and are identical across folds.
+The combined test period is 2023-01-01 to 2026-09-30. The gate's effective training start is 2020-04-08: base forecasts begin 2020-01-01 and the 60-day trailing-loss features need a warm-up. All rolling baselines use only data before each forecast date. Hyperparameters (hidden size, dropout, λ_eq grid) are fixed before fold 1 is tested and are identical across folds.
 
 ## 6. Evaluation
 
