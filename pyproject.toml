@@ -10,6 +10,8 @@ dependencies = [
     "arch>=7.0",
     "yfinance>=0.2.54",
     "pyyaml>=6.0",
+    "statsmodels>=0.14",
+    "matplotlib>=3.8",
 ]
 
 [dependency-groups]
