@@ -2,7 +2,7 @@
 
 Research code for a study of forecast combination for Value-at-Risk (VaR) and Expected Shortfall (ES) on Indian equities. A small neural gate maps the observable market state to combination weights over six econometric risk models. It is trained directly on the FZ0 joint VaR/ES loss.
 
-> **Status:** All three implementation plans are complete: data and base models, combination baselines and the gate, and the statistical evaluation. The main hypothesis is **not** supported on this data; see Results.
+> **Status:** Implementation complete, plus a pre-registered held-out study on 12 new stocks. The main hypothesis (a state-dependent FZ-trained gate beats simple combinations) is **not** supported in either the development or the held-out universe; see Results and Held-out study.
 
 ## Research question
 
@@ -107,6 +107,37 @@ Selected rows from `results/tables/main_results.csv`, which has all 17 methods. 
 - The gate's design and hyperparameters were fixed before the test years were seen. Changing it now (for example removing or regularising the scale head) would be tuned on the test period and needs a fresh hold-out or a pre-registered protocol.
 - McNeil–Frey uses residuals scaled by |ES| because pair combinations have no σ.
 - The spec's secondary check (QLIKE and MSE of combined variance against the Garman–Klass proxy) was not run. Most combinations here combine VaR/ES pairs and have no single variance.
+
+## Held-out study (pre-registered)
+
+After the development results, a revised gate (`gate_v2`, scale factor pulled toward 1 with a fixed penalty) and the exploratory state finding were tested once on 12 NSE stocks never used before. Assets, hypotheses and decision rules were committed to GitHub before any held-out data was downloaded: [docs/preregistration/2026-10-06-holdout.md](docs/preregistration/2026-10-06-holdout.md) (commit `cd06685`). Nothing was changed after the download; all 77 large moves were kept under the pre-registered outlier rule (no unadjusted corporate actions found).
+
+Results are in `results/holdout/tables/`. Pooled, α = 2.5%, test period 2023-01 to 2026-09:
+
+| Method | Mean FZ0 | MCS p | DM gate_v2 vs method | DM p (two-sided) |
+|---|---|---|---|---|
+| HAR (single model) | -3.2648 | 1.000 | 2.82 | 0.005 |
+| Gate, QLIKE variance | -3.2471 | 0.019 | 0.29 | 0.769 |
+| **gate_v2** | **-3.2450** | 0.019 | | |
+| Taylor minimum score | -3.2436 | 0.019 | -0.17 | 0.868 |
+| Taylor relative score | -3.2374 | 0.019 | -0.92 | 0.357 |
+| Equal-weight mean | -3.2348 | 0.006 | -1.18 | 0.238 |
+| Original gate | -3.1898 | 0.019 | -2.50 | 0.013 |
+
+Selected rows; the full table is `results/holdout/tables/main_results.csv`.
+
+Pre-registered hypotheses:
+
+- **H1, gate_v2 beats equal weights: not supported.** DM -1.18, one-sided p = 0.12. The sign favours gate_v2, and so does the per-asset count (10 of 12 assets), but only 4 of 12 are significant at 10% two-sided.
+- **H1b, gate_v2 beats Taylor's combinations: not supported.** DM -0.17 (minimum score) and -0.92 (relative score).
+- **H2, the original gate does better when vol-of-vol and VRP are high: not supported.** The vov30 coefficient is negative (-0.037, one-sided p = 0.041), but the vrp coefficient is positive (+0.015). The rule required both.
+
+Other findings, reported without a decision rule:
+
+- The HAR model on range-based variance is the best method on the held-out stocks. It is the only member of the pooled 10% Model Confidence Set and beats gate_v2 significantly.
+- gate_v2 significantly beats the GARCH-family models, EWMA, the median combination and the original gate.
+- The original gate's failure replicates: it is the worst method on the held-out stocks.
+- With the penalty, gate_v2's scale factor stays between 0.97 and 0.99 in every test year (`gate_by_year.csv`).
 
 ## Repository layout
 

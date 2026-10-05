@@ -1,0 +1,28 @@
+\begin{table}[t]
+\centering
+\small
+\caption{Backtest rejections at 5\% across 12 assets, alpha = 2.5\%}
+\label{tab:backtests}
+\begin{tabular}{lrrrrr}
+\toprule
+method & hit\_rate & kupiec & cc & dq & mf \\
+\midrule
+egarch\_t & 0.017 & 3 & 3 & 1 & 0 \\
+ewma & 0.024 & 0 & 0 & 3 & 1 \\
+garch\_t & 0.017 & 3 & 2 & 2 & 1 \\
+gate & 0.030 & 2 & 2 & 7 & 1 \\
+gate\_noscale & 0.021 & 0 & 1 & 1 & 0 \\
+gate\_qlike & 0.023 & 2 & 3 & 4 & 0 \\
+gate\_v2 & 0.023 & 0 & 3 & 3 & 0 \\
+gjr\_t & 0.017 & 4 & 3 & 1 & 1 \\
+har & 0.022 & 0 & 1 & 2 & 0 \\
+mean & 0.019 & 1 & 2 & 1 & 1 \\
+median & 0.018 & 2 & 2 & 1 & 1 \\
+min\_score & 0.021 & 3 & 2 & 3 & 1 \\
+previous\_best & 0.023 & 1 & 2 & 4 & 1 \\
+relative\_score & 0.021 & 2 & 2 & 2 & 1 \\
+vix & 0.023 & 2 & 4 & 3 & 1 \\
+\bottomrule
+\end{tabular}
+\par\footnotesize Counts of assets where each test rejects; hit\_rate is the mean of per-asset hit rates. McNeil-Frey uses residuals scaled by |ES|.
+\end{table}
