@@ -64,3 +64,13 @@ def test_mcs_table_excludes_clearly_worse():
     L = pd.DataFrame({"a": rng.normal(0, 1, 800), "b": rng.normal(1.0, 1, 800)})
     t = mcs_table(L, reps=300)
     assert bool(t.loc["a", "in_mcs"]) and not bool(t.loc["b", "in_mcs"])
+
+
+def test_mcs_table_handles_identical_methods():
+    rng = np.random.default_rng(6)
+    a = rng.normal(0, 1, 600)
+    L = pd.DataFrame({"a": a, "a_copy": a, "b": rng.normal(1.0, 1, 600)})
+    t = mcs_table(L, reps=200)
+    assert list(t.index) == ["a", "a_copy", "b"]
+    assert t.loc["a", "pvalue"] == t.loc["a_copy", "pvalue"]
+    assert bool(t.loc["a_copy", "in_mcs"]) and not bool(t.loc["b", "in_mcs"])

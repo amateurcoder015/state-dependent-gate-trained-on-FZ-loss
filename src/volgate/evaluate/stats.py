@@ -88,7 +88,15 @@ def mcneil_frey(y, var, es, reps: int = 2000, seed: int = 0):
 
 
 def mcs_table(losses: pd.DataFrame, size: float = 0.10, reps: int = 2000, seed: int = 0) -> pd.DataFrame:
-    m = MCS(losses, size=size, reps=reps, method="R", bootstrap="stationary", seed=seed)
+    """Model Confidence Set; methods with identical losses share the result of their first copy."""
+    first = {}
+    for c in losses.columns:
+        match = next((k for k in first.values() if losses[c].equals(losses[k])), None)
+        first[c] = match if match is not None else c
+    unique = list(dict.fromkeys(first.values()))
+    m = MCS(losses[unique], size=size, reps=reps, method="R", bootstrap="stationary", seed=seed)
     m.compute()
-    p = m.pvalues["Pvalue"].reindex(losses.columns)
-    return pd.DataFrame({"pvalue": p, "in_mcs": p.index.isin(m.included)})
+    p = m.pvalues["Pvalue"]
+    return pd.DataFrame({"pvalue": [p[first[c]] for c in losses.columns],
+                         "in_mcs": [first[c] in m.included for c in losses.columns]},
+                        index=losses.columns)

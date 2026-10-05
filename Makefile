@@ -1,6 +1,6 @@
-.PHONY: all download prepare base combos gate table test
+.PHONY: all download prepare base combos gate table evaluate test
 
-all: prepare base combos gate table
+all: prepare base combos gate table evaluate
 
 download:
 	uv run python scripts/01_download.py
@@ -19,6 +19,9 @@ gate:
 
 table:
 	uv run python scripts/06_fz0_table.py
+
+evaluate:
+	uv run python scripts/07_evaluate.py
 
 test:
 	uv run pytest -q

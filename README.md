@@ -2,7 +2,7 @@
 
 Research code for a study of forecast combination for Value-at-Risk (VaR) and Expected Shortfall (ES) on Indian equities. A small neural gate maps the observable market state to combination weights over six econometric risk models. It is trained directly on the FZ0 joint VaR/ES loss.
 
-> **Status:** Plans 1 and 2 of 3 complete (data, base models, combination baselines, gate and ablations). Plan 3 (significance tests and backtests) is not built yet, so the comparison below has no significance tests.
+> **Status:** All three implementation plans are complete: data and base models, combination baselines and the gate, and the statistical evaluation. The main hypothesis is **not** supported on this data; see Results.
 
 ## Research question
 
@@ -49,8 +49,8 @@ The raw downloads are frozen with a SHA-256 manifest. Every daily return larger 
 | FZ0 loss | Done (Plan 1) |
 | Baseline combinations (equal, median, Taylor 2020) | Done (Plan 2) |
 | Neural gate and walk-forward training | Done (Plan 2) |
-| DM, MCS, VaR/ES backtests | Planned |
-| Expiry and state analyses | Planned |
+| DM, MCS, VaR/ES backtests | Done (Plan 3) |
+| Expiry and state analyses | Done (Plan 3) |
 
 ## Reproducing
 
@@ -72,28 +72,40 @@ make all           # prepare panel -> walk-forward base-model forecasts
 - `results/tables/base_model_summary.csv`: for each asset, base model and tail level, the out-of-sample VaR hit rate, mean FZ0 loss, and number of refits that fell back to the previous parameters.
 - `configs/expiry_rules.yaml`: NSE expiry rules with a source for each rule.
 
-## Preliminary results (no significance tests yet)
+## Results
 
-Pooled mean FZ0 loss over 2023-01 to 2026-09, all 8 assets, from `results/tables/test_fz0.csv` (lower is better):
+Test period 2023-01 to 2026-09, 8 assets, about 920 days each. All numbers come from files in `results/tables/`; LaTeX versions are in `results/tables/tex/`.
 
-| Method | α = 1% | α = 2.5% | α = 5% |
-|---|---|---|---|
-| Taylor relative score | -2.971 | -3.256 | -3.485 |
-| Taylor minimum score | -2.967 | -3.258 | -3.487 |
-| Previous best | -2.959 | -3.256 | -3.472 |
-| Equal-weight mean | -2.955 | -3.249 | -3.476 |
-| Gate (main) | -2.919 | -3.219 | -3.466 |
-| Best single model | -2.961 (GARCH-t) | -3.250 (HAR) | -3.476 (HAR) |
+### Pooled FZ0 loss (lower is better)
 
-At α = 2.5% the gate ablations score: QLIKE-trained variance gate -3.262 (lowest of all methods), no scale head -3.252, variance combination -3.244, no expiry features -3.240, no VIX features -3.224.
+From `results/tables/main_results.csv`. DM compares the main gate with each method on the cross-asset average loss; a positive statistic means the gate has higher loss.
 
-What this shows so far:
+| Method | α = 1% | α = 2.5% | α = 5% | MCS p (2.5%) | DM gate vs method (2.5%) | DM p |
+|---|---|---|---|---|---|---|
+| Gate, QLIKE-trained variance (ablation) | | -3.2618 | | 1.000 | 2.27 | 0.023 |
+| Taylor minimum score | -2.9668 | -3.2578 | -3.4868 | 0.951 | 1.42 | 0.157 |
+| Taylor relative score | -2.9707 | -3.2560 | -3.4844 | 0.904 | 1.29 | 0.199 |
+| Previous best | -2.9592 | -3.2560 | -3.4720 | 0.951 | 1.18 | 0.237 |
+| Gate without scale head (ablation) | | -3.2517 | | 0.821 | 1.30 | 0.192 |
+| HAR | -2.9564 | -3.2502 | -3.4762 | 0.766 | 1.40 | 0.162 |
+| Equal-weight mean | -2.9550 | -3.2488 | -3.4761 | 0.766 | 1.10 | 0.273 |
+| Gate (main) | -2.9187 | -3.2189 | -3.4656 | 0.343 | | |
 
-- The main gate does worse than equal weights and than Taylor's (2020) combinations at all three tail levels.
-- Most of the loss comes from one fold (test year 2024). That fold's gate learned a scale factor of about 0.82 on its 2020–22 training data, which the calm 2023 validation year confirmed. VaR was therefore about 18% too small in 2024: hit rate 3.8% against 2.4% for equal weights. Without the scale head the gate stays close to equal weights in every fold.
-- The gate's training data starts 2020-04-08, after the COVID crash, because its 60-day loss features need a warm-up after base forecasts begin on 2020-01-01. Baseline weights use expanding windows that start 2020-01-01.
-- Taylor's minimum and relative score combinations are the strongest baselines.
-- These are point estimates. Plan 3 adds Diebold–Mariano tests, the Model Confidence Set and backtests; differences of this size may not be significant.
+### What the evidence says
+
+- **Main hypothesis not supported.** The FZ-trained state-dependent gate has higher mean FZ0 loss than equal weights and Taylor's (2020) combinations at all three tail levels.
+- **But no method is clearly better than another.** At α = 2.5% the gate stays in the 10% Model Confidence Set pooled and for every one of the 8 assets. Its DM statistics against equal weights and against Taylor's methods are below 2 in absolute value pooled and for every asset. The only significant pooled difference is the QLIKE-trained variance gate beating the main gate (DM 2.27, p = 0.023).
+- **Why the main gate loses:** its scale head. In the fold tested on 2024 it learned g ≈ 0.82 from 2020–22 data, so VaR was too small (hit rate 3.8% against 2.4% for equal weights). Without the scale head the gate tracks equal weights.
+- **When the gate helps** (`results/tables/state_regression.csv`, HAC errors). The loss difference (gate minus equal weights) is lower, meaning the gate does better, when volatility-of-volatility is high (coefficient -0.073 per standard deviation, p = 0.0005) and when the variance risk premium is high (-0.077, p = 0.0002). Model-loss dispersion is borderline (-0.039, p = 0.052).
+- **Expiry effects: none detected.** Difference-in-differences around the 2025-09-01 move to Tuesday expiry finds no significant expiry, post-switch or interaction effect on the gate's relative loss, for NIFTY or for the average stock (`results/tables/expiry_did.csv`; all p > 0.15).
+- **Backtests at α = 2.5%** (`results/tables/backtest_rejections.csv`, counts of assets rejecting at 5%): main gate hit rate 2.7%; Kupiec rejects for 2 assets, conditional coverage for 1, DQ for 3, McNeil–Frey for none. Equal weights: hit rate 2.0%, rejections 1/1/0/0. The India VIX model alone is the worst calibrated (4/2/3/2).
+- Figure: `results/figures/gate_weights.png` shows the gate's monthly mean VaR weights and scale factor.
+
+### Caveats
+
+- The test period is one market (8 NSE assets), about 3.75 years, with roughly 23 VaR exceptions per asset at α = 2.5%. Power to separate methods is low.
+- The gate's design and hyperparameters were fixed before the test years were seen. Changing it now (for example removing or regularising the scale head) would be tuned on the test period and needs a fresh hold-out or a pre-registered protocol.
+- McNeil–Frey uses residuals scaled by |ES| because pair combinations have no σ.
 
 ## Repository layout
 
