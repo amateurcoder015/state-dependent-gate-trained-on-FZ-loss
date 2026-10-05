@@ -84,6 +84,21 @@ state_regression(avg["d"], avg[["vov30", "vix", "vrp", "loss_dispersion"]]).rese
     names="term").to_csv(P["tables"] / "state_regression.csv", index=False)
 pd.concat(weights_rows).to_csv(P["tables"] / "gate_weights_expiry.csv", index=False)
 
+# Gate behaviour by test year at the main alpha (scale factor and hit rates).
+year_rows = []
+for asset in cfg["assets"]:
+    fc, df = collect_forecasts(P["processed"], asset, MAIN, START, END)
+    dates, y, fca = aligned(fc, df["log_return"])
+    L = losses_main[asset]
+    g = gate[gate.asset == asset].set_index("date").reindex(dates)["g"]
+    year_rows.append(pd.DataFrame({
+        "year": dates.year, "g": g.to_numpy(),
+        "gate_hit": y <= fca["gate"][0], "mean_hit": y <= fca["mean"][0],
+        "fz0_gate": L["gate"].to_numpy(), "fz0_gate_noscale": L["gate_noscale"].to_numpy(),
+        "fz0_mean": L["mean"].to_numpy()}))
+by_year = pd.concat(year_rows).groupby("year").mean()
+by_year.to_csv(P["tables"] / "gate_by_year.csv")
+
 # LaTeX: main results (pooled).
 pooled = means[means.asset == "ALL"].pivot(index="method", columns="alpha", values="mean_fz0")
 pooled.columns = [f"FZ0 a={c:g}" for c in pooled.columns]
@@ -107,8 +122,8 @@ rej = b25.groupby("method")[["hit_rate", "kupiec", "cc", "dq", "mf"]].agg(
 rej.index.name = "method"
 rej.to_csv(P["tables"] / "backtest_rejections.csv")
 (TEX / "backtests.tex").write_text(to_latex(
-    rej, "Backtest rejections at 5\\% across 8 assets, alpha = 2.5\\%", "tab:backtests", digits=3,
-    note="Counts of assets where each test rejects. McNeil-Frey uses residuals scaled by |ES|."))
+    rej, f"Backtest rejections at 5\\% across {len(cfg['assets'])} assets, alpha = 2.5\\%", "tab:backtests", digits=3,
+    note="Counts of assets where each test rejects; hit\\_rate is the mean of per-asset hit rates. McNeil-Frey uses residuals scaled by |ES|."))
 
 # Figure: monthly mean gate weights and scale.
 gm = gate.set_index("date")[[f"wq_{m}" for m in MODELS] + ["g"]].resample("ME").mean()

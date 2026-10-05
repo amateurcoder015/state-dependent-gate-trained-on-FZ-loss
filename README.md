@@ -78,7 +78,7 @@ Test period 2023-01 to 2026-09, 8 assets, about 920 days each. All numbers come 
 
 ### Pooled FZ0 loss (lower is better)
 
-From `results/tables/main_results.csv`. DM compares the main gate with each method on the cross-asset average loss; a positive statistic means the gate has higher loss.
+Selected rows from `results/tables/main_results.csv`, which has all 17 methods. DM compares the main gate with each method on the cross-asset average loss; a positive statistic means the gate has higher loss.
 
 | Method | α = 1% | α = 2.5% | α = 5% | MCS p (2.5%) | DM gate vs method (2.5%) | DM p |
 |---|---|---|---|---|---|---|
@@ -95,17 +95,18 @@ From `results/tables/main_results.csv`. DM compares the main gate with each meth
 
 - **Main hypothesis not supported.** The FZ-trained state-dependent gate has higher mean FZ0 loss than equal weights and Taylor's (2020) combinations at all three tail levels.
 - **But no method is clearly better than another.** At α = 2.5% the gate stays in the 10% Model Confidence Set pooled and for every one of the 8 assets. Its DM statistics against equal weights and against Taylor's methods are below 2 in absolute value pooled and for every asset. The only significant pooled difference is the QLIKE-trained variance gate beating the main gate (DM 2.27, p = 0.023).
-- **Why the main gate loses:** its scale head. In the fold tested on 2024 it learned g ≈ 0.82 from 2020–22 data, so VaR was too small (hit rate 3.8% against 2.4% for equal weights). Without the scale head the gate tracks equal weights.
-- **When the gate helps** (`results/tables/state_regression.csv`, HAC errors). The loss difference (gate minus equal weights) is lower, meaning the gate does better, when volatility-of-volatility is high (coefficient -0.073 per standard deviation, p = 0.0005) and when the variance risk premium is high (-0.077, p = 0.0002). Model-loss dispersion is borderline (-0.039, p = 0.052).
+- **Why the main gate loses:** its scale head (`results/tables/gate_by_year.csv`). In 2024 its mean scale factor was 0.82, learned from 2020–22 data, so VaR was too small: hit rate 3.8% against 2.4% for equal weights, and mean FZ0 -2.927 against -3.038. In the other test years the gate without the scale head is within 0.01 of equal weights.
+- **When the gate helps** (`results/tables/state_regression.csv`, HAC errors; exploratory, run on the test period, with correlated regressors). The loss difference (gate minus equal weights) is lower, meaning the gate does better, when volatility-of-volatility is high (coefficient -0.073 per standard deviation, p = 0.0005) and when the variance risk premium is high (-0.077, p = 0.0002). Model-loss dispersion is borderline (-0.039, p = 0.052).
 - **Expiry effects: none detected.** Difference-in-differences around the 2025-09-01 move to Tuesday expiry finds no significant expiry, post-switch or interaction effect on the gate's relative loss, for NIFTY or for the average stock (`results/tables/expiry_did.csv`; all p > 0.15).
 - **Backtests at α = 2.5%** (`results/tables/backtest_rejections.csv`, counts of assets rejecting at 5%): main gate hit rate 2.7%; Kupiec rejects for 2 assets, conditional coverage for 1, DQ for 3, McNeil–Frey for none. Equal weights: hit rate 2.0%, rejections 1/1/0/0. The India VIX model alone is the worst calibrated (4/2/3/2).
 - Figure: `results/figures/gate_weights.png` shows the gate's monthly mean VaR weights and scale factor.
 
 ### Caveats
 
-- The test period is one market (8 NSE assets), about 3.75 years, with roughly 23 VaR exceptions per asset at α = 2.5%. Power to separate methods is low.
+- The test period is one market (8 NSE assets), about 3.75 years, with about 23 expected VaR exceptions per asset at α = 2.5% (the main gate's actual counts range from 15 to 35). Power to separate methods is low.
 - The gate's design and hyperparameters were fixed before the test years were seen. Changing it now (for example removing or regularising the scale head) would be tuned on the test period and needs a fresh hold-out or a pre-registered protocol.
 - McNeil–Frey uses residuals scaled by |ES| because pair combinations have no σ.
+- The spec's secondary check (QLIKE and MSE of combined variance against the Garman–Klass proxy) was not run. Most combinations here combine VaR/ES pairs and have no single variance.
 
 ## Repository layout
 
