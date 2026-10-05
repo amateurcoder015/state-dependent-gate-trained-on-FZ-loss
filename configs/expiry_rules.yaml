@@ -1,0 +1,15 @@
+NIFTY:
+  - {kind: monthly, weekday: THU, start: "2015-01-01", end: "2025-08-31", source: UNVERIFIED}
+  - {kind: weekly,  weekday: THU, start: "2019-02-11", end: "2025-08-31", source: UNVERIFIED}
+  - {kind: weekly,  weekday: TUE, start: "2025-09-01", end: null,         source: UNVERIFIED}
+  - {kind: monthly, weekday: TUE, start: "2025-09-01", end: null,         source: UNVERIFIED}
+BANKNIFTY:
+  - {kind: weekly,  weekday: THU, start: "2016-05-27", end: "2023-09-03", source: UNVERIFIED}
+  - {kind: weekly,  weekday: WED, start: "2023-09-04", end: "2024-11-19", source: UNVERIFIED}
+  - {kind: monthly, weekday: THU, start: "2015-01-01", end: "2023-08-31", source: UNVERIFIED}
+  - {kind: monthly, weekday: WED, start: "2023-09-01", end: "2024-12-31", source: UNVERIFIED}
+  - {kind: monthly, weekday: THU, start: "2025-01-01", end: "2025-08-31", source: UNVERIFIED}
+  - {kind: monthly, weekday: TUE, start: "2025-09-01", end: null,         source: UNVERIFIED}
+STOCK:
+  - {kind: monthly, weekday: THU, start: "2015-01-01", end: "2025-08-31", source: UNVERIFIED}
+  - {kind: monthly, weekday: TUE, start: "2025-09-01", end: null,         source: UNVERIFIED}
