@@ -1,0 +1,76 @@
+asset,date,log_return,close_return,action,note
+nifty50,2020-03-23,-0.1390375646105113,-0.1390375646105113,keep,COVID-19 crash; Nifty -13.9% same day
+banknifty,2020-03-23,-0.18313003618881218,-0.1831300075395319,keep,COVID-19 crash; Nifty -13.9% same day
+adanient,2015-06-01,-0.10949095982031842,-0.10949063085984445,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+adanient,2015-06-03,-0.49019396666535986,-0.490194162583653,drop,"unadjusted corporate action: Adani Enterprises 2015 demerger ex-date; raw open 312 vs prior close 97.6 then close 59.8, Yahoo adj_close not adjusted"
+adanient,2015-06-08,-0.14443650033780697,-0.14443662062614937,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+adanient,2015-08-04,0.10777495828319816,0.10777505696220357,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+adanient,2015-08-24,-0.1403407774952905,-0.14034069619856826,keep,market-wide selloff (China devaluation crash); index also fell
+adanient,2015-08-27,0.10285753859861613,0.10285737228047154,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+adanient,2015-09-14,0.10521647624856145,0.10521632487282018,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+adanient,2015-10-15,0.13183472830592402,0.1318347991381641,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+adanient,2017-01-27,0.14626242165791048,0.1462624614282535,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+adanient,2017-04-18,0.16101773429013377,0.1610179142665915,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+adanient,2017-04-26,-0.23496702384529655,-0.23496713706676076,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+adanient,2017-08-09,-0.1002366679531086,-0.10023675014893296,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+adanient,2018-04-05,0.13933618689459326,0.13933624394575883,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+adanient,2018-06-27,-0.11517302004720253,-0.11517320557381616,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+adanient,2018-09-06,0.19017165642555245,0.190171517315874,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+adanient,2019-02-04,-0.14984762543065777,-0.14984760946494102,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+adanient,2019-05-20,0.24191002092123082,0.24191014459443672,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+adanient,2020-03-12,-0.1883165785888341,-0.18831653975875629,keep,COVID-19 crash; market-wide
+adanient,2020-03-23,-0.12304811553577544,-0.1301136133304963,keep,COVID-19 crash; Nifty -13.9% same day
+adanient,2020-08-19,0.11418891383651708,0.11418902802414266,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+adanient,2020-08-25,0.2123903012170576,0.21239029742464854,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+adanient,2021-03-22,0.10793678456699052,0.10793682043156583,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+adanient,2021-04-12,-0.11172495136743077,-0.11172517480493838,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+adanient,2021-10-28,-0.11343970787529845,-0.11343975983289667,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+adanient,2023-01-27,-0.20476422910790681,-0.20476423808203315,keep,Hindenburg Research report on Adani group (2023-01-24)
+adanient,2023-02-01,-0.33124369293943445,-0.33124357648287983,keep,Adani FPO withdrawal / Hindenburg fallout
+adanient,2023-02-02,-0.31058486657494466,-0.31058505776088907,keep,Adani FPO withdrawal / Hindenburg fallout
+adanient,2023-02-07,0.13663030930829834,0.13663032872856906,keep,Hindenburg-period Adani group volatility (Jan-May 2023)
+adanient,2023-02-08,0.18264984082855484,0.18264969591795754,keep,Hindenburg-period Adani group volatility (Jan-May 2023)
+adanient,2023-02-09,-0.11678449287194681,-0.11678436846608076,keep,Hindenburg-period Adani group volatility (Jan-May 2023)
+adanient,2023-02-22,-0.11184542333224012,-0.11184547728990424,keep,Hindenburg-period Adani group volatility (Jan-May 2023)
+adanient,2023-02-28,0.1334214412402419,0.1334213980019765,keep,Hindenburg-period Adani group volatility (Jan-May 2023)
+adanient,2023-03-01,0.1371269250204854,0.13712690600090394,keep,Hindenburg-period Adani group volatility (Jan-May 2023)
+adanient,2023-03-03,0.15648111344576332,0.15648113998243662,keep,Hindenburg-period Adani group volatility (Jan-May 2023)
+adanient,2023-05-22,0.17326590688926746,0.17326592879583114,keep,Hindenburg-period Adani group volatility (Jan-May 2023)
+adanient,2023-05-23,0.12419661925065206,0.12419659566184205,keep,Hindenburg-period Adani group volatility (Jan-May 2023)
+adanient,2023-12-05,0.1562762003274738,0.1562762033254801,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+adanient,2024-06-04,-0.21459019455215866,-0.21459028915482214,keep,Lok Sabha election results day; market-wide selloff
+adanient,2024-11-21,-0.2562709621287498,-0.25627091451865436,keep,US indictment of Adani executives (2024-11-20/21)
+adanient,2024-11-27,0.10885144735451391,0.10885129741348099,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+adanient,2026-01-23,-0.11260809438202113,-0.11260806549171054,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+adanient,2026-08-31,-0.10275136563188259,-0.10275136563188259,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+tatasteel,2015-08-24,-0.14075279663615925,-0.14075289497649868,keep,market-wide selloff (China devaluation crash); index also fell
+tatasteel,2016-02-15,0.12597396262300986,0.12597413778564182,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+tatasteel,2020-03-13,0.12799324031850956,0.12799330129494368,keep,COVID-19 crash volatility; market-wide
+tatasteel,2020-03-16,-0.12054165449102738,-0.12054163366199999,keep,COVID-19 crash; market-wide
+tatasteel,2021-09-20,-0.10072920056041745,-0.10072925996239768,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+tatasteel,2022-05-23,-0.13482590483703127,-0.13482582499900797,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+dlf,2015-01-15,0.10288285930898677,0.10288273276332038,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+dlf,2015-08-14,0.16873585756312437,0.1687358879522769,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+dlf,2015-08-24,-0.16466370207332215,-0.1646635074681253,keep,market-wide selloff (China devaluation crash); index also fell
+dlf,2015-08-25,0.1482954753917971,0.14829509502433336,keep,rebound after 2015-08-24 market-wide selloff
+dlf,2016-02-11,-0.1060983603394936,-0.10609823018656162,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+dlf,2016-09-29,-0.10785644552228302,-0.10785648375293189,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+dlf,2016-11-09,-0.18953276079281078,-0.18953276120922702,keep,demonetisation announcement; market-wide realty selloff
+dlf,2017-08-14,0.15511433445209732,0.15511448210400403,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+dlf,2019-01-25,-0.11778284018236729,-0.11778303565638293,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+dlf,2019-08-22,-0.17223302354417758,-0.17223281683663139,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+dlf,2020-02-03,-0.1206427506261063,-0.12064277566788917,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+dlf,2020-03-12,-0.12869986844853631,-0.12869981199638403,keep,COVID-19 crash; market-wide
+dlf,2020-03-16,-0.11254943744393842,-0.11254937885027427,keep,COVID-19 crash; market-wide
+dlf,2020-03-23,-0.10274116018546131,-0.10274116444634718,keep,COVID-19 crash; Nifty -13.9% same day
+dlf,2020-03-26,0.10967251434223524,0.10967262228786812,keep,COVID-19 rebound; market-wide
+dlf,2021-04-12,-0.12541357926121321,-0.1254135083250194,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+dlf,2021-09-22,0.10972048050555738,0.10972044623870669,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+dlf,2024-06-04,-0.13025760863632918,-0.13025771937267638,keep,Lok Sabha election results day; market-wide selloff
+hindunilvr,2020-03-20,0.10982747364525114,0.10982743592290678,keep,COVID-19 crash volatility; market-wide
+hindunilvr,2020-04-07,0.1266311040190109,0.12663113410509919,keep,COVID-19 rebound rally; market-wide
+nestleind,2020-04-07,0.12048171072886937,0.12048166637289981,keep,COVID-19 rebound rally; market-wide
+sunpharma,2015-07-21,-0.1632017021385872,-0.16320171404371298,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+sunpharma,2017-05-29,-0.12171025901307075,-0.12171043736617371,keep,no split/demerger in Yahoo actions; adj and raw close returns agree; treated as genuine price move
+sunpharma,2020-03-23,-0.1182965334010202,-0.1182965144866639,keep,COVID-19 crash; Nifty -13.9% same day
+sunpharma,2020-04-07,0.10446886274644918,0.10446902462733654,keep,COVID-19 rebound rally; market-wide

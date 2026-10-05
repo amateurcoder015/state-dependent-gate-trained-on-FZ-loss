@@ -2,7 +2,7 @@
 
 Research code for a study of forecast combination for Value-at-Risk (VaR) and Expected Shortfall (ES) on Indian equities. A small neural gate maps the observable market state to combination weights over six econometric risk models. It is trained directly on the FZ0 joint VaR/ES loss.
 
-> **Status:** design stage. No results yet. This README describes what the code will do; the status table below is updated as each part is implemented and tested.
+> **Status:** Plan 1 of 3 complete (data pipeline and base risk models). The combination methods, the gate, and the evaluation are not built yet. No comparative results exist yet.
 
 ## Research question
 
@@ -44,9 +44,9 @@ The raw downloads are frozen with a SHA-256 manifest. Every daily return larger 
 
 | Component | Status |
 |---|---|
-| Data download, audit, expiry calendar | Planned |
-| Base models and VaR/ES | Planned |
-| FZ0 loss | Planned |
+| Data download, audit, expiry calendar | Done (Plan 1) |
+| Base models and VaR/ES | Done (Plan 1) |
+| FZ0 loss | Done (Plan 1) |
 | Baseline combinations (equal, median, Taylor 2020) | Planned |
 | Neural gate and walk-forward training | Planned |
 | DM, MCS, VaR/ES backtests | Planned |
@@ -54,12 +54,36 @@ The raw downloads are frozen with a SHA-256 manifest. Every daily return larger 
 
 ## Reproducing
 
-Planned commands, not yet available:
+Requires [uv](https://docs.astral.sh/uv/).
 
 ```bash
 uv sync
-make all        # download -> audit -> base models -> combinations -> gate -> evaluation -> tables
-uv run pytest   # unit, leakage, and determinism tests
+uv run pytest -q   # unit and leakage tests
+make download      # optional: re-download raw data (overwrites the frozen files in data/raw/)
+make all           # prepare panel -> walk-forward base-model forecasts
+```
+
+`make all` uses the frozen raw files committed in `data/raw/` and stops if their SHA-256 hashes do not match `data/raw/MANIFEST.csv`. It writes processed data to `data/processed/` (not committed) and tables to `results/tables/`.
+
+## Current outputs
+
+- `results/tables/data_summary.csv`: rows per asset, dropped no-trade rows, India VIX fills.
+- `results/tables/outlier_audit.csv`: every daily return above 10% in absolute value, with the review decision and evidence. One row is removed: Adani Enterprises 2015-06-03 (unadjusted demerger).
+- `results/tables/base_model_summary.csv`: for each asset, base model and tail level, the out-of-sample VaR hit rate, mean FZ0 loss, and number of refits that fell back to the previous parameters.
+- `configs/expiry_rules.yaml`: NSE expiry rules with a source for each rule.
+
+## Repository layout
+
+```
+configs/               run configuration and NSE expiry rules
+data/raw/              frozen Yahoo Finance downloads + MANIFEST.csv
+data/audit/            outlier review decisions
+src/volgate/risk/      FZ0 loss, Student-t and empirical VaR/ES
+src/volgate/data/      download, panel construction, expiry calendar
+src/volgate/models/    EWMA, GARCH-t, EGARCH-t, GJR-t, HAR, India VIX model, walk-forward engine
+scripts/               numbered pipeline stages
+tests/                 pytest suite, including look-ahead (leakage) tests
+docs/superpowers/      design spec and implementation plans
 ```
 
 ## Design document
