@@ -2,7 +2,7 @@
 
 Research code for a study of forecast combination for Value-at-Risk (VaR) and Expected Shortfall (ES) on Indian equities. A small neural gate maps the observable market state to combination weights over six econometric risk models. It is trained directly on the FZ0 joint VaR/ES loss.
 
-> **Status:** Plan 1 of 3 complete (data pipeline and base risk models). The combination methods, the gate, and the evaluation are not built yet. No comparative results exist yet.
+> **Status:** Plans 1 and 2 of 3 complete (data, base models, combination baselines, gate and ablations). Plan 3 (significance tests and backtests) is not built yet, so the comparison below has no significance tests.
 
 ## Research question
 
@@ -47,8 +47,8 @@ The raw downloads are frozen with a SHA-256 manifest. Every daily return larger 
 | Data download, audit, expiry calendar | Done (Plan 1) |
 | Base models and VaR/ES | Done (Plan 1) |
 | FZ0 loss | Done (Plan 1) |
-| Baseline combinations (equal, median, Taylor 2020) | Planned |
-| Neural gate and walk-forward training | Planned |
+| Baseline combinations (equal, median, Taylor 2020) | Done (Plan 2) |
+| Neural gate and walk-forward training | Done (Plan 2) |
 | DM, MCS, VaR/ES backtests | Planned |
 | Expiry and state analyses | Planned |
 
@@ -71,6 +71,28 @@ make all           # prepare panel -> walk-forward base-model forecasts
 - `results/tables/outlier_audit.csv`: every daily return above 10% in absolute value, with the review decision and evidence. One row is removed: Adani Enterprises 2015-06-03 (unadjusted demerger).
 - `results/tables/base_model_summary.csv`: for each asset, base model and tail level, the out-of-sample VaR hit rate, mean FZ0 loss, and number of refits that fell back to the previous parameters.
 - `configs/expiry_rules.yaml`: NSE expiry rules with a source for each rule.
+
+## Preliminary results (no significance tests yet)
+
+Pooled mean FZ0 loss over 2023-01 to 2026-09, all 8 assets, from `results/tables/test_fz0.csv` (lower is better):
+
+| Method | α = 1% | α = 2.5% | α = 5% |
+|---|---|---|---|
+| Taylor relative score | -2.971 | -3.256 | -3.485 |
+| Taylor minimum score | -2.967 | -3.258 | -3.487 |
+| Previous best | -2.959 | -3.256 | -3.472 |
+| Equal-weight mean | -2.955 | -3.249 | -3.476 |
+| Gate (main) | -2.919 | -3.219 | -3.466 |
+| Best single model (HAR) | -2.957 | -3.250 | -3.476 |
+
+At α = 2.5% the gate ablations score: QLIKE-trained variance gate -3.262 (lowest of all methods), no scale head -3.252, variance combination -3.244, no expiry features -3.240, no VIX features -3.224.
+
+What this shows so far:
+
+- The main gate does worse than equal weights and than Taylor's (2020) combinations at all three tail levels.
+- Most of the loss comes from one fold. The gate validated on 2023, a calm year, learned a scale factor of about 0.82 (VaR about 18% too small) and then under-predicted risk in 2024: VaR hit rate 3.8% against 2.4% for equal weights. Without the scale head the gate stays close to equal weights in every fold.
+- Taylor's minimum and relative score combinations are the strongest baselines.
+- These are point estimates. Plan 3 adds Diebold–Mariano tests, the Model Confidence Set and backtests; differences of this size may not be significant.
 
 ## Repository layout
 
