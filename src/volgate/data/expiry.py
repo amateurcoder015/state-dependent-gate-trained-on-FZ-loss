@@ -86,3 +86,10 @@ def expiry_features(dates: pd.DatetimeIndex, expiries: pd.DatetimeIndex, prefix:
         f"{prefix}_is_expiry": dates.isin(expiries).astype(int),
         f"{prefix}_days_to_expiry": dte,
     }, index=dates)
+
+
+def asset_expiry_features(asset_days: pd.DatetimeIndex, rules: list[ExpiryRule],
+                          calendar: pd.DatetimeIndex, prefix: str) -> pd.DataFrame:
+    """Expiry features on the common NSE calendar, restricted to one asset's days."""
+    feats = expiry_features(calendar, expiry_dates(rules, calendar), prefix)
+    return feats.reindex(asset_days)

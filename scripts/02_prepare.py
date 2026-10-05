@@ -4,8 +4,8 @@ import pandas as pd
 
 from volgate.config import REPO_ROOT, load_config
 from volgate.data.download import verify_manifest
-from volgate.data.expiry import expiry_dates, expiry_features, load_rules, unverified
-from volgate.data.panel import apply_corrections, build_asset_frame, load_raw, outlier_table
+from volgate.data.expiry import asset_expiry_features, load_rules, unverified
+from volgate.data.panel import apply_corrections, build_asset_frame, load_raw, nse_calendar, outlier_table
 
 cfg = load_config()
 P = {k: REPO_ROOT / v for k, v in cfg["paths"].items()}
@@ -16,7 +16,8 @@ if bad:
 vix = load_raw(P["raw"] / "india_vix.csv")["close"]
 frames, stats = {}, []
 for asset in cfg["assets"]:
-    frames[asset], s = build_asset_frame(load_raw(P["raw"] / f"{asset}.csv"), vix)
+    frames[asset], s = build_asset_frame(load_raw(P["raw"] / f"{asset}.csv"), vix,
+                                         exclude_dates=cfg.get("special_sessions", []))
     stats.append({"asset": asset, **s})
 
 P["tables"].mkdir(parents=True, exist_ok=True)
@@ -36,12 +37,10 @@ for item in unverified(rules):
 
 out_dir = P["processed"] / "panel"
 out_dir.mkdir(parents=True, exist_ok=True)
-nifty_dates = frames["nifty50"].index
-nifty_exp = expiry_dates(rules["NIFTY"], nifty_dates)
+calendar = nse_calendar(frames, cfg.get("special_sessions", []))
 for asset, df in frames.items():
-    own_exp = expiry_dates(rules[cfg["contracts"][asset]], df.index)
-    df = df.join(expiry_features(df.index, own_exp, "own"))
-    df = df.join(expiry_features(df.index, nifty_exp, "nifty"))
+    df = df.join(asset_expiry_features(df.index, rules[cfg["contracts"][asset]], calendar, "own"))
+    df = df.join(asset_expiry_features(df.index, rules["NIFTY"], calendar, "nifty"))
     df.to_csv(out_dir / f"{asset}.csv", date_format="%Y-%m-%d")
 
 summary = pd.DataFrame(stats)

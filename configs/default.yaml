@@ -29,3 +29,18 @@ paths:
   processed: data/processed
   tables: results/tables
   expiry_rules: configs/expiry_rules.yaml
+# Diwali Muhurat sessions (about one hour of trading on an exchange holiday).
+# Excluded from all panels and treated as holidays in the expiry calendar.
+# Dates present in the data were confirmed by volume below 0.5x the 21-day median.
+special_sessions:
+  - "2015-11-11"
+  - "2016-10-30"
+  - "2017-10-19"
+  - "2018-11-07"
+  - "2019-10-27"
+  - "2020-11-14"
+  - "2021-11-04"
+  - "2022-10-24"
+  - "2023-11-12"
+  - "2024-11-01"
+  - "2025-10-21"

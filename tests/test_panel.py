@@ -62,3 +62,21 @@ def test_outlier_table_and_corrections():
     assert raw.index[3] not in fixed["x"].index
     with pytest.raises(ValueError, match="unknown action"):
         apply_corrections({"x": df}, corr.assign(action="fix"))
+
+
+def test_excluded_session_dropped_before_returns():
+    raw = _raw(6)
+    special = raw.index[3]
+    df, stats = build_asset_frame(raw, pd.Series(15.0, index=raw.index), exclude_dates=[special])
+    assert special not in df.index
+    assert stats["special_dropped"] == 1
+    # return on the day after the special session spans two days of price change
+    assert df.loc[raw.index[4], "log_return"] == pytest.approx(0.02)
+
+
+def test_nse_calendar_is_union_minus_excluded():
+    from volgate.data.panel import nse_calendar
+    a = pd.DataFrame(index=pd.DatetimeIndex(["2021-11-01", "2021-11-03", "2021-11-04"]))
+    b = pd.DataFrame(index=pd.DatetimeIndex(["2021-11-02", "2021-11-03"]))
+    cal = nse_calendar({"a": a, "b": b}, ["2021-11-04"])
+    assert list(cal.strftime("%Y-%m-%d")) == ["2021-11-01", "2021-11-02", "2021-11-03"]

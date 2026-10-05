@@ -16,9 +16,20 @@ def gk_variance(df: pd.DataFrame) -> pd.Series:
     return (0.5 * hl**2 - (2 * np.log(2) - 1) * co**2).clip(lower=_GK_FLOOR)
 
 
-def build_asset_frame(raw: pd.DataFrame, vix_close: pd.Series,
-                      drop_flat: bool = True) -> tuple[pd.DataFrame, dict]:
+def nse_calendar(frames: dict[str, pd.DataFrame], exclude_dates=()) -> pd.DatetimeIndex:
+    """Common NSE trading calendar: union of all asset dates minus special sessions."""
+    cal = pd.DatetimeIndex([])
+    for df in frames.values():
+        cal = cal.union(df.index)
+    return cal.difference(pd.DatetimeIndex(exclude_dates))
+
+
+def build_asset_frame(raw: pd.DataFrame, vix_close: pd.Series, drop_flat: bool = True,
+                      exclude_dates=()) -> tuple[pd.DataFrame, dict]:
+    """Exclude special sessions (e.g. Diwali Muhurat) before computing returns."""
     df = raw.sort_index().dropna(subset=["open", "high", "low", "close", "adj_close"]).copy()
+    special = df.index.isin(pd.DatetimeIndex(exclude_dates))
+    df = df[~special]
     n_flat = 0
     if drop_flat:
         flat = ((df["high"] == df["low"]) & (df["open"] == df["close"])
@@ -34,6 +45,7 @@ def build_asset_frame(raw: pd.DataFrame, vix_close: pd.Series,
     stats = {
         "rows": len(df),
         "flat_dropped": n_flat,
+        "special_dropped": int(special.sum()),
         "vix_filled": int((~df.index.isin(vix_close.index) & df["vix"].notna()).sum()),
         "vix_missing": int(df["vix"].isna().sum()),
     }

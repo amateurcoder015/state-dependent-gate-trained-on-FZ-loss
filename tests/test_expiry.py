@@ -57,3 +57,14 @@ def test_repo_rules_file_loads():
     from volgate.config import REPO_ROOT
     rules = load_rules(REPO_ROOT / "configs" / "expiry_rules.yaml")
     assert set(rules) == {"NIFTY", "BANKNIFTY", "STOCK"}
+
+
+def test_asset_expiry_features_use_common_calendar():
+    from volgate.data.expiry import asset_expiry_features
+    # Muhurat 2021-11-04 (Thu) excluded from calendar: weekly expiry moves to Wed 2021-11-03
+    cal = pd.bdate_range("2021-11-01", "2021-11-12").drop(pd.Timestamp("2021-11-04"))
+    asset_days = cal.drop(pd.Timestamp("2021-11-02"))  # asset missing a day the calendar has
+    f = asset_expiry_features(asset_days, [_rule("weekly", 3, "2021-01-01")], cal, "own")
+    assert f.loc["2021-11-03", "own_is_expiry"] == 1
+    assert f.loc["2021-11-01", "own_days_to_expiry"] == 2  # counted on the common calendar
+    assert list(f.index) == list(asset_days)
