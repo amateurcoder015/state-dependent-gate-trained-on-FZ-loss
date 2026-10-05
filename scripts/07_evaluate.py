@@ -16,8 +16,9 @@ from volgate.risk.dist import alpha_tag  # noqa: E402
 
 START, END, MAIN = "2023-01-01", "2026-09-30", 0.025
 cfg = load_config()
+GATE = cfg.get("main_variant", "gate")
 P = {k: REPO_ROOT / v for k, v in cfg["paths"].items()}
-TEX, FIG = P["tables"] / "tex", REPO_ROOT / "results" / "figures"
+TEX, FIG = P["tables"] / "tex", P.get("figures", REPO_ROOT / "results" / "figures")
 TEX.mkdir(parents=True, exist_ok=True)
 FIG.mkdir(parents=True, exist_ok=True)
 
@@ -41,8 +42,8 @@ for a in cfg["alphas"]:
     if a == MAIN:
         losses_main = per_asset
     for asset, L in per_asset.items():
-        for other in L.columns.drop("gate"):
-            s, p = dm_test(L["gate"], L[other])
+        for other in L.columns.drop(GATE):
+            s, p = dm_test(L[GATE], L[other])
             dm_rows.append({"alpha": a, "asset": asset, "other": other, "dm_stat": s, "p": p})
         t = mcs_table(L)
         for name, r in t.iterrows():
@@ -58,13 +59,13 @@ for name, t in [("dm_gate", dm), ("mcs", mcs), ("backtests", bt)]:
 
 # Expiry and state analyses at the main alpha (gate minus equal-weight mean).
 did_rows, panels, weights_rows = [], [], []
-gate = pd.read_csv(P["processed"] / "gate" / alpha_tag(MAIN) / "gate.csv", parse_dates=["date"])
+gate = pd.read_csv(P["processed"] / "gate" / alpha_tag(MAIN) / f"{GATE}.csv", parse_dates=["date"])
 for asset in cfg["assets"]:
     L = losses_main[asset]
     full = load_asset(P["processed"], asset)
     df = full.reindex(L.index)
     st = gate_features(full, MAIN).reindex(L.index)
-    panels.append(pd.DataFrame({"d": L["gate"] - L["mean"], "expiry": df["own_is_expiry"],
+    panels.append(pd.DataFrame({"d": L[GATE] - L["mean"], "d_gate": L["gate"] - L["mean"], "expiry": df["own_is_expiry"],
                                 "asset": asset, "vov30": st["vov30"], "vix": st["vix"],
                                 "vrp": st["vrp"],
                                 "loss_dispersion": st[[f"fz_{m}" for m in MODELS]].std(axis=1)}))
@@ -77,11 +78,15 @@ panel = pd.concat(panels)
 nifty = panel[panel.asset == "nifty50"]
 stocks = panel[~panel.asset.isin(["nifty50", "banknifty"])].groupby(level=0).mean(numeric_only=True)
 for name, p in [("nifty50", nifty), ("stocks_avg", stocks)]:
+    if p.empty:
+        continue
     did_rows.append(expiry_did(p["d"], p["expiry"]).assign(sample=name).reset_index(names="term"))
 pd.concat(did_rows).to_csv(P["tables"] / "expiry_did.csv", index=False)
 avg = panel.groupby(level=0).mean(numeric_only=True)
-state_regression(avg["d"], avg[["vov30", "vix", "vrp", "loss_dispersion"]]).reset_index(
-    names="term").to_csv(P["tables"] / "state_regression.csv", index=False)
+STATES = ["vov30", "vix", "vrp", "loss_dispersion"]
+pd.concat([state_regression(avg["d"], avg[STATES]).reset_index(names="term").assign(method=GATE),
+           state_regression(avg["d_gate"], avg[STATES]).reset_index(names="term").assign(method="gate")]
+          ).drop_duplicates(subset=["term", "method"]).to_csv(P["tables"] / "state_regression.csv", index=False)
 pd.concat(weights_rows).to_csv(P["tables"] / "gate_weights_expiry.csv", index=False)
 
 # Gate behaviour by test year at the main alpha (scale factor and hit rates).
@@ -93,8 +98,9 @@ for asset in cfg["assets"]:
     g = gate[gate.asset == asset].set_index("date").reindex(dates)["g"]
     year_rows.append(pd.DataFrame({
         "year": dates.year, "g": g.to_numpy(),
-        "gate_hit": y <= fca["gate"][0], "mean_hit": y <= fca["mean"][0],
-        "fz0_gate": L["gate"].to_numpy(), "fz0_gate_noscale": L["gate_noscale"].to_numpy(),
+        "gate_hit": y <= fca[GATE][0], "mean_hit": y <= fca["mean"][0],
+        "fz0_gate": L[GATE].to_numpy(),
+        **({"fz0_gate_noscale": L["gate_noscale"].to_numpy()} if "gate_noscale" in L else {}),
         "fz0_mean": L["mean"].to_numpy()}))
 by_year = pd.concat(year_rows).groupby("year").mean()
 by_year.to_csv(P["tables"] / "gate_by_year.csv")
@@ -105,14 +111,14 @@ pooled.columns = [f"FZ0 a={c:g}" for c in pooled.columns]
 m25 = mcs[(mcs.asset == "ALL") & (mcs.alpha == MAIN)].set_index("method")
 d25 = dm[(dm.asset == "ALL") & (dm.alpha == MAIN)].set_index("other")
 pooled["MCS p (2.5%)"] = m25["pvalue"]
-pooled["DM gate vs (2.5%)"] = d25["dm_stat"]
+pooled[f"DM {GATE} vs (2.5%)"] = d25["dm_stat"]
 pooled["DM p (2.5%)"] = d25["p"]
 pooled.index.name = "method"
 pooled = pooled.sort_values("FZ0 a=0.025")
 pooled.to_csv(P["tables"] / "main_results.csv")
 (TEX / "main_results.tex").write_text(to_latex(
     pooled, "Pooled test-period FZ0 loss, 2023-01 to 2026-09", "tab:main", digits=4,
-    note="Lower is better. DM: gate minus row method, HLN-corrected; negative favours the gate. "
+    note=f"Lower is better. DM: {GATE} minus row method, HLN-corrected; negative favours the gate. "
          "Pooled series is the cross-asset average loss per date."))
 b25 = bt[bt.alpha == MAIN].assign(
     kupiec=lambda x: x.kupiec_p < 0.05, cc=lambda x: x.cc_p < 0.05,

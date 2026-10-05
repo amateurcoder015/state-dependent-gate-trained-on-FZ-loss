@@ -25,6 +25,7 @@ class GateConfig:
     epochs: int = 300
     batch: int = 256
     patience: int = 20
+    lam_g: float = 0.0
 
 
 VARIANTS = {c.name: c for c in [
@@ -34,6 +35,7 @@ VARIANTS = {c.name: c for c in [
     GateConfig("gate_noscale", use_scale=False),
     GateConfig("gate_variance", mode="variance", use_scale=False),
     GateConfig("gate_qlike", mode="variance", loss="qlike", use_scale=False),
+    GateConfig("gate_v2", lam_g=10.0),
 ]}
 
 
@@ -90,7 +92,7 @@ def _fit_nu(rows) -> float:
 def _net(cfg, n_feat, n_assets, alpha, nu, lam, seed):
     return GateNet(n_feat, n_assets, len(MODELS), hidden=cfg.hidden, emb=cfg.emb,
                    dropout=cfg.dropout, mode=cfg.mode, loss=cfg.loss, use_scale=cfg.use_scale,
-                   alpha=alpha, nu=nu, lam_eq=lam, wd=cfg.wd, seed=seed)
+                   alpha=alpha, nu=nu, lam_eq=lam, wd=cfg.wd, lam_g=cfg.lam_g, seed=seed)
 
 
 def run_variant(long, cfg, alpha, folds, lam_grid=(0.0, 0.1, 1.0, 10.0), seeds=(0, 1, 2, 3, 4)):

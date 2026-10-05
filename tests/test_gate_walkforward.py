@@ -16,7 +16,7 @@ def _frames():
 
 def test_variants_and_folds():
     assert set(VARIANTS) == {"gate", "gate_novix", "gate_noexpiry", "gate_noscale",
-                             "gate_variance", "gate_qlike"}
+                             "gate_variance", "gate_qlike", "gate_v2"}
     assert FOLDS[-1].test_end == "2026-09-30"
 
 

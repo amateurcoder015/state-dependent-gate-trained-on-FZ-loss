@@ -10,7 +10,9 @@ from volgate.risk.dist import alpha_tag
 cfg = load_config()
 P = {k: REPO_ROOT / v for k, v in cfg["paths"].items()}
 frames = {a: load_asset(P["processed"], a) for a in cfg["assets"]}
-runs = [(0.025, v) for v in VARIANTS] + [(0.01, "gate"), (0.05, "gate")]
+main = cfg.get("main_variant", "gate")
+variants = cfg.get("gate_variants", list(VARIANTS))
+runs = [(0.025, v) for v in variants] + [(a, main) for a in cfg["alphas"] if a != 0.025]
 selections = []
 for a, name in runs:
     t0 = time.time()

@@ -16,7 +16,8 @@ def _batch(n=64, F=5, M=3, n_assets=2, seed=0):
             "y": rng.normal(0, 0.02, n)}
 
 
-CONFIGS = [dict(mode="pairs", use_scale=True), dict(mode="pairs", use_scale=False),
+CONFIGS = [dict(mode="pairs", use_scale=True), dict(mode="pairs", use_scale=True, lam_g=2.0),
+           dict(mode="pairs", use_scale=False),
            dict(mode="variance", use_scale=False, nu=6.0),
            dict(mode="variance", loss="qlike", use_scale=False, nu=6.0)]
 
@@ -119,3 +120,14 @@ def test_invalid_config_raises():
         GateNet(5, 2, 3, mode="pairs", loss="qlike")
     with pytest.raises(ValueError):
         GateNet(5, 2, 3, mode="variance", nu=None)
+
+
+def test_scale_shrinkage_pulls_g_toward_one():
+    b = _batch(400)
+    b["y"] = b["y"] * 0.3  # forecasts far too wide: unpenalised gate shrinks g
+    gs = []
+    for lam_g in (0.0, 50.0):
+        net = GateNet(5, 2, 3, dropout=0.0, lam_g=lam_g, seed=0)
+        train_gate(net, b, b, lr=1e-2, epochs=60, patience=60, seed=0)
+        gs.append(abs(np.log(net.forward(b)["g"])).mean())
+    assert gs[1] < 0.5 * gs[0]

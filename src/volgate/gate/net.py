@@ -24,7 +24,7 @@ class GateNet:
 
     def __init__(self, n_features, n_assets, n_models, hidden=16, emb=4, dropout=0.1,
                  mode="pairs", loss="fz0", use_scale=True, alpha=0.025, nu=None,
-                 lam_eq=0.0, wd=1e-4, seed=0):
+                 lam_eq=0.0, wd=1e-4, lam_g=0.0, seed=0):
         if mode not in ("pairs", "variance"):
             raise ValueError(f"bad mode {mode!r}")
         if loss not in ("fz0", "qlike"):
@@ -37,6 +37,7 @@ class GateNet:
         self.mode, self.loss, self.alpha = mode, loss, alpha
         self.use_scale = use_scale and mode == "pairs"
         self.dropout, self.lam_eq, self.wd = dropout, lam_eq, wd
+        self.lam_g = lam_g  # penalty on (log g)^2, pulls the scale factor toward 1
         rng = np.random.default_rng(seed)
         d = n_features + emb
         self.p = {
@@ -119,7 +120,7 @@ class GateNet:
             dhd = dhd + dls @ p["Ws"].T
             if self.use_scale:
                 dgg = dv * c["v0"] + de * (c["v0"] + c["sp"])
-                dpre = dgg * gg * 0.5 * (1.0 - c["th"] ** 2)
+                dpre = (dgg * gg * 0.5 + self.lam_g * 0.5 * c["th"] / n) * (1.0 - c["th"] ** 2)
                 g["wb"], g["bb"] = c["hd"].T @ dpre, np.array([dpre.sum()])
                 dhd = dhd + dpre[:, None] * p["wb"][None, :]
         else:
@@ -137,6 +138,8 @@ class GateNet:
             if k in p:
                 reg += 0.5 * self.wd * np.sum(p[k] ** 2)
                 g[k] = g[k] + self.wd * p[k]
+        if self.use_scale:
+            reg += self.lam_g * np.mean((0.5 * c["th"]) ** 2)
         return float(loss + self.lam_eq * pen + reg), g
 
 

@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import yaml
@@ -11,7 +12,9 @@ _REQUIRED = {
 
 
 def load_config(path: str | Path | None = None) -> dict:
-    path = Path(path) if path is not None else REPO_ROOT / "configs" / "default.yaml"
+    if path is None:
+        path = os.environ.get("VOLGATE_CONFIG", REPO_ROOT / "configs" / "default.yaml")
+    path = Path(path)
     with open(path) as f:
         cfg = yaml.safe_load(f)
     missing = _REQUIRED - set(cfg)

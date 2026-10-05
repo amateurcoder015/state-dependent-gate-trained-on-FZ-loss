@@ -1,0 +1,55 @@
+# Held-out universe (see docs/preregistration/2026-10-06-holdout.md).
+start: "2015-01-01"
+end: "2026-09-30"
+oos_start: "2020-01-01"
+refit_every: 21
+alphas: [0.01, 0.025, 0.05]
+outlier_threshold: 0.10
+assets:
+  reliance: "RELIANCE.NS"
+  infy: "INFY.NS"
+  icicibank: "ICICIBANK.NS"
+  itc: "ITC.NS"
+  lt: "LT.NS"
+  maruti: "MARUTI.NS"
+  bhartiartl: "BHARTIARTL.NS"
+  hindalco: "HINDALCO.NS"
+  drreddy: "DRREDDY.NS"
+  ongc: "ONGC.NS"
+  titan: "TITAN.NS"
+  bajfinance: "BAJFINANCE.NS"
+vix: "^INDIAVIX"
+contracts:
+  reliance: STOCK
+  infy: STOCK
+  icicibank: STOCK
+  itc: STOCK
+  lt: STOCK
+  maruti: STOCK
+  bhartiartl: STOCK
+  hindalco: STOCK
+  drreddy: STOCK
+  ongc: STOCK
+  titan: STOCK
+  bajfinance: STOCK
+main_variant: gate_v2
+gate_variants: [gate, gate_v2, gate_noscale, gate_qlike]
+special_sessions:
+  - "2015-11-11"
+  - "2016-10-30"
+  - "2017-10-19"
+  - "2018-11-07"
+  - "2019-10-27"
+  - "2020-11-14"
+  - "2021-11-04"
+  - "2022-10-24"
+  - "2023-11-12"
+  - "2024-11-01"
+  - "2025-10-21"
+paths:
+  raw: data/holdout/raw
+  audit: data/holdout/audit
+  processed: data/holdout/processed
+  tables: results/holdout/tables
+  figures: results/holdout/figures
+  expiry_rules: configs/expiry_rules.yaml
